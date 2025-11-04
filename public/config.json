@@ -1,0 +1,43 @@
+{
+  "siteName": "AI Agent",
+  "logoText": "AI Agent",
+  "apiBaseUrl": "https://api.example.com",
+  "cmsSiteId": "example-site",
+  "navigation": {
+    "links": [
+      { "label": "Features", "href": "#features" },
+      { "label": "Pricing", "href": "#pricing" },
+      { "label": "Docs", "href": "#docs" },
+      { "label": "About", "href": "#about" }
+    ]
+  },
+  "hero": {
+    "title": "Build AI Agents for Your Business",
+    "subtitle": "Automate workflows, enhance productivity, and deliver exceptional customer experiences."
+  },
+  "features": [
+    {
+      "title": "Developer Friendly",
+      "description": "Easy-to-use APIs and SDKs to integrate AI into your applications.",
+      "icon": "code"
+    },
+    {
+      "title": "Enterprise Grade",
+      "description": "Secure, scalable, and reliable infrastructure for mission-critical applications.",
+      "icon": "shield"
+    },
+    {
+      "title": "Natural Language",
+      "description": "Conversational AI that understands and responds like a human.",
+      "icon": "message-square"
+    }
+  ],
+  "seo": {
+    "defaultTitle": "AI Agent App",
+    "defaultDescription": "AI Agent platform for automation and customer experiences."
+  },
+  "footer": {
+    "year": 2023,
+    "company": "AI Agent"
+  }
+}

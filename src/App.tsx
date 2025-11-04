@@ -1,36 +1,76 @@
 import { useState } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useConfig } from './ConfigContext'
+import ArticlePage from './pages/Article'
 import { Zap, Code, Shield, MessageSquare, ChevronRight, Menu, X } from 'lucide-react'
 
 const App = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const config = useConfig()
+  const siteName = config.siteName ?? 'AI Agent'
+  const logoUrl = config.logoUrl
+  const navLinks = config.navigation?.links ?? [
+    { label: 'Features', href: '#' },
+    { label: 'Pricing', href: '#' },
+    { label: 'Docs', href: '#' },
+    { label: 'About', href: '#' }
+  ]
+  const defaultTitle = config.seo?.defaultTitle ?? siteName
+  const defaultDesc = config.seo?.defaultDescription ?? 'AI Agent platform'
+  const slug = new URLSearchParams(window.location.search).get('slug')
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <Helmet>
+        <title>{defaultTitle}</title>
+        <meta name="description" content={defaultDesc} />
+      </Helmet>
       <Header 
         mobileMenuOpen={mobileMenuOpen} 
         setMobileMenuOpen={setMobileMenuOpen} 
+        siteName={siteName}
+        logoUrl={logoUrl}
+        navLinks={navLinks}
       />
-      <Hero />
-      <Features />
-      <Testimonials />
+      {slug ? (
+        <ArticlePage slug={slug} />
+      ) : (
+        <>
+          <Hero />
+          <Features />
+          <Testimonials />
+        </>
+      )}
       <Footer />
     </div>
   )
 }
 
-const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
+type HeaderProps = {
+  mobileMenuOpen: boolean
+  setMobileMenuOpen: Dispatch<SetStateAction<boolean>>
+  siteName: string
+  logoUrl?: string
+  navLinks: { label: string; href: string }[]
+}
+
+const Header = ({ mobileMenuOpen, setMobileMenuOpen, siteName, logoUrl, navLinks }: HeaderProps) => {
   return (
     <header className="container mx-auto px-4 py-6 flex justify-between items-center">
       <div className="flex items-center space-x-2">
-        <Zap className="text-primary" size={24} />
-        <span className="text-xl font-bold text-dark">AI Agent</span>
+        {logoUrl ? (
+          <img src={logoUrl} alt="logo" className="h-6 w-auto" />
+        ) : (
+          <Zap className="text-primary" size={24} />
+        )}
+        <span className="text-xl font-bold text-dark">{siteName}</span>
       </div>
       
       <nav className="hidden md:flex space-x-8">
-        <a href="#" className="text-dark hover:text-primary">Features</a>
-        <a href="#" className="text-dark hover:text-primary">Pricing</a>
-        <a href="#" className="text-dark hover:text-primary">Docs</a>
-        <a href="#" className="text-dark hover:text-primary">About</a>
+        {navLinks.map((link, idx) => (
+          <a key={idx} href={link.href} className="text-dark hover:text-primary">{link.label}</a>
+        ))}
       </nav>
       
       <div className="hidden md:flex space-x-4">
@@ -50,10 +90,9 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-white shadow-lg py-4 px-6">
           <nav className="flex flex-col space-y-4">
-            <a href="#" className="text-dark hover:text-primary">Features</a>
-            <a href="#" className="text-dark hover:text-primary">Pricing</a>
-            <a href="#" className="text-dark hover:text-primary">Docs</a>
-            <a href="#" className="text-dark hover:text-primary">About</a>
+            {navLinks.map((link, idx) => (
+              <a key={idx} href={link.href} className="text-dark hover:text-primary">{link.label}</a>
+            ))}
           </nav>
           <div className="mt-4 pt-4 border-t border-gray-200 flex flex-col space-y-4">
             <button className="w-full py-2 text-dark hover:text-primary">Sign In</button>
@@ -68,15 +107,14 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
 }
 
 const Hero = () => {
+  const { hero } = useConfig()
+  const title = hero?.title ?? 'Build AI Agents for Your Business'
+  const subtitle = hero?.subtitle ?? 'Automate workflows, enhance productivity, and deliver exceptional customer experiences with our AI Agent platform.'
   return (
     <section className="container mx-auto px-4 py-16 md:py-24">
       <div className="max-w-3xl mx-auto text-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-dark mb-6">
-          Build AI Agents for Your Business
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-10">
-          Automate workflows, enhance productivity, and deliver exceptional customer experiences with our AI Agent platform.
-        </p>
+        <h1 className="text-4xl md:text-6xl font-bold text-dark mb-6">{title}</h1>
+        <p className="text-lg md:text-xl text-gray-600 mb-10">{subtitle}</p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <button className="px-6 py-3 bg-primary text-white rounded-md hover:bg-blue-600 flex items-center justify-center">
             Get Started <ChevronRight className="ml-2" size={20} />
@@ -91,23 +129,26 @@ const Hero = () => {
 }
 
 const Features = () => {
-  const features = [
-    {
-      icon: <Code size={24} className="text-primary" />,
-      title: "Developer Friendly",
-      description: "Easy-to-use APIs and SDKs to integrate AI into your applications."
-    },
-    {
-      icon: <Shield size={24} className="text-primary" />,
-      title: "Enterprise Grade",
-      description: "Secure, scalable, and reliable infrastructure for mission-critical applications."
-    },
-    {
-      icon: <MessageSquare size={24} className="text-primary" />,
-      title: "Natural Language",
-      description: "Conversational AI that understands and responds like a human."
-    }
-  ]
+  const { features: configFeatures } = useConfig()
+  const features = (configFeatures && configFeatures.length > 0)
+    ? configFeatures
+    : [
+        {
+          title: 'Developer Friendly',
+          description: 'Easy-to-use APIs and SDKs to integrate AI into your applications.',
+          icon: 'code'
+        },
+        {
+          title: 'Enterprise Grade',
+          description: 'Secure, scalable, and reliable infrastructure for mission-critical applications.',
+          icon: 'shield'
+        },
+        {
+          title: 'Natural Language',
+          description: 'Conversational AI that understands and responds like a human.',
+          icon: 'message-square'
+        }
+      ]
 
   return (
     <section className="container mx-auto px-4 py-16 bg-white">
@@ -122,7 +163,10 @@ const Features = () => {
         {features.map((feature, index) => (
           <div key={index} className="bg-gray-50 p-8 rounded-lg hover:shadow-md transition-shadow">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              {feature.icon}
+              {feature.icon === 'code' && <Code size={24} className="text-primary" />}
+              {feature.icon === 'shield' && <Shield size={24} className="text-primary" />}
+              {feature.icon === 'message-square' && <MessageSquare size={24} className="text-primary" />}
+              {!feature.icon && <Code size={24} className="text-primary" />}
             </div>
             <h3 className="text-xl font-semibold text-dark mb-2">{feature.title}</h3>
             <p className="text-gray-600">{feature.description}</p>
@@ -177,6 +221,9 @@ const Testimonials = () => {
 }
 
 const Footer = () => {
+  const { footer } = useConfig()
+  const year = footer?.year ?? 2023
+  const company = footer?.company ?? 'AI Agent'
   return (
     <footer className="bg-dark text-white py-12">
       <div className="container mx-auto px-4">
@@ -184,7 +231,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Zap className="text-white" size={24} />
-              <span className="text-xl font-bold">AI Agent</span>
+              <span className="text-xl font-bold">{company}</span>
             </div>
             <p className="text-gray-400">
               Building the future of AI-powered automation.
@@ -220,7 +267,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>© 2023 AI Agent. All rights reserved.</p>
+          <p>© {year} {company}. All rights reserved.</p>
         </div>
       </div>
     </footer>

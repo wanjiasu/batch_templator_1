@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useConfig } from './ConfigContext'
 import ArticlePage from './pages/Article'
+import { Routes, Route } from 'react-router-dom'
 import { Zap, Code, Shield, MessageSquare, ChevronRight, Menu, X } from 'lucide-react'
 
 const App = () => {
@@ -18,7 +19,6 @@ const App = () => {
   ]
   const defaultTitle = config.seo?.defaultTitle ?? siteName
   const defaultDesc = config.seo?.defaultDescription ?? 'AI Agent platform'
-  const slug = new URLSearchParams(window.location.search).get('slug')
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
@@ -33,15 +33,19 @@ const App = () => {
         logoUrl={logoUrl}
         navLinks={navLinks}
       />
-      {slug ? (
-        <ArticlePage slug={slug} />
-      ) : (
-        <>
-          <Hero />
-          <Features />
-          <Testimonials />
-        </>
-      )}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <Hero />
+              <Features />
+              <Testimonials />
+            </>
+          }
+        />
+        <Route path="/articles/:slug" element={<ArticlePage />} />
+      </Routes>
       <Footer />
     </div>
   )

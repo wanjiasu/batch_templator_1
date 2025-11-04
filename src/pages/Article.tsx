@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useConfig } from '../ConfigContext'
+import { useParams } from 'react-router-dom'
 
 type Article = {
   id: number
@@ -12,13 +13,22 @@ type Article = {
   }
 }
 
-const ArticlePage: React.FC<{ slug: string }> = ({ slug }) => {
+type RouteParams = { slug?: string }
+
+const ArticlePage: React.FC = () => {
+  const { slug } = useParams<RouteParams>()
   const { apiBaseUrl, cmsSiteId } = useConfig()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [article, setArticle] = useState<Article | null>(null)
 
   useEffect(() => {
+    if (!slug) {
+      setLoading(false)
+      setError('Missing slug')
+      return
+    }
+
     if (!apiBaseUrl) {
       setLoading(false)
       setError('Missing apiBaseUrl in config')

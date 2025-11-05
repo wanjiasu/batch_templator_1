@@ -59,6 +59,10 @@ jobs:
           #... 您可以在这里列出100个
 
     steps:
+
+      - name: Deploy files via rsync
+        run: rsync -avz --delete --ignore-errors --no-perms --omit-dir-times --exclude='.user.ini' <SRC> <DEST>
+
       - name: Download Build Artifact
         # 下载 'build' 作业保存的./dist 文件夹
         uses: actions/download-artifact@v4
@@ -72,7 +76,8 @@ jobs:
         with:
           # --- 这是整个架构中最关键的配置 ---
           # 单行传递以避免换行导致的解析问题
-          switches: -avzr --delete --exclude=config.json
+          # 避免修改时间戳/权限；保护服务器受控文件；移除 delete 以绕过权限限制
+          switches: -rlvz --exclude=config.json --exclude=.user.ini --exclude=.htaccess --exclude=404.html --omit-dir-times --no-perms --no-owner --no-group
             
           # -avzr: 归档, 详细, 压缩, 递归
           # --delete: 删除服务器上有、但本地 dist 中没有的旧文件 (保持同步) [9]

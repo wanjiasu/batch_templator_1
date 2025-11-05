@@ -22,6 +22,9 @@ jobs:
           node-version: '18'
           cache: 'pnpm' # 使用 pnpm 缓存以加快速度
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:

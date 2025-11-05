@@ -14,23 +14,22 @@ jobs:
     
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Setup Node.js 18
-        uses: actions/setup-node@v4
+      - name: Setup PNPM v10
+        uses: pnpm/action-setup@v4
         with:
-          node-version: '18'
+          version: 10
+
+      - name: Setup Node.js 24 with pnpm cache
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
           cache: 'pnpm' # 使用 pnpm 缓存以加快速度
 
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Prepare PNPM 9 via Corepack
-        run: corepack prepare pnpm@9 --activate
-
       - name: Install Dependencies
-        # 使用 pnpm 读取 pnpm-lock.yaml，确保依赖锁定 [7]
-        run: pnpm install --frozen-lockfile
+        # pnpm >= 6.10 在 CI 环境默认启用 --frozen-lockfile [0]
+        run: pnpm install
 
       - name: Build Production App
         # 运行 build 脚本 (在 package.json 中定义) [8]

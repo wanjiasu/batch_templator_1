@@ -25,14 +25,8 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
-
-      - name: Add PNPM to PATH
-        run: echo "$(pnpm bin)" >> $GITHUB_PATH
+      - name: Prepare PNPM 9 via Corepack
+        run: corepack prepare pnpm@9 --activate
 
       - name: Install Dependencies
         # 使用 pnpm 读取 pnpm-lock.yaml，确保依赖锁定 [7]

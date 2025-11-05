@@ -60,9 +60,6 @@ jobs:
 
     steps:
 
-      - name: Deploy files via rsync
-        run: rsync -avz --delete --ignore-errors --no-perms --omit-dir-times --exclude='.user.ini' <SRC> <DEST>
-
       - name: Download Build Artifact
         # 下载 'build' 作业保存的./dist 文件夹
         uses: actions/download-artifact@v4

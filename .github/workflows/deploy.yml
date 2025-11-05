@@ -14,7 +14,7 @@ jobs:
     
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 18
         uses: actions/setup-node@v4
@@ -22,8 +22,11 @@ jobs:
           node-version: '18'
           cache: 'pnpm' # 使用 pnpm 缓存以加快速度
 
-      - name: Enable Corepack (PNPM)
-        run: corepack enable
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
 
       - name: Install Dependencies
         # 使用 pnpm 读取 pnpm-lock.yaml，确保依赖锁定 [7]

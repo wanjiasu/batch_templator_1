@@ -67,6 +67,25 @@ jobs:
           name: vite-build-dist
           path: ./dist
 
+      - name: Verify artifact contents
+        run: |
+          echo "Local dist contents:"
+          ls -lah ./dist || true
+          echo "Fail if dist is empty"
+          if [ -z "$(ls -A ./dist 2>/dev/null)" ]; then
+            echo "dist is empty; check build step and artifact upload";
+            exit 1;
+          fi
+
+      - name: Debug remote directory listing
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.BAOTA_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "Remote directory before deploy: ${{ matrix.site_path }}"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 "${{ secrets.BAOTA_SSH_USER }}@${{ secrets.BAOTA_SERVER_IP }}" "ls -lah ${{ matrix.site_path }}" || true
+
       - name: Deploy to ${{ matrix.site_path }} via Rsync
         # 使用一个专为 rsync 部署设计的 Action [6]
         uses: burnett01/rsync-deployments@7.1.0 
@@ -74,7 +93,7 @@ jobs:
           # --- 这是整个架构中最关键的配置 ---
           # 单行传递以避免换行导致的解析问题
           # 避免修改时间戳/权限；保护服务器受控文件；移除 delete 以绕过权限限制
-          switches: -rlvz --exclude=config.json --exclude=.user.ini --exclude=.htaccess --exclude=404.html --omit-dir-times --no-perms --no-owner --no-group
+          switches: -rlvz --stats --exclude=config.json --exclude=.user.ini --exclude=.htaccess --exclude=404.html --omit-dir-times --no-perms --no-owner --no-group
             
           # -avzr: 归档, 详细, 压缩, 递归
           # --delete: 删除服务器上有、但本地 dist 中没有的旧文件 (保持同步) [9]
@@ -91,4 +110,4 @@ jobs:
           remote_key: ${{ secrets.BAOTA_SSH_PRIVATE_KEY }}
           
           # 目标路径 (从上面的 matrix 变量中获取) [6]
-          remote_path: ${{ matrix.site_path }}
+          remote_path: ${{ matrix.site_path }}/

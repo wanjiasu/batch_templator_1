@@ -71,10 +71,8 @@ jobs:
         uses: burnett01/rsync-deployments@7.1.0 
         with:
           # --- 这是整个架构中最关键的配置 ---
-          switches: >
-            -avzr
-            --delete
-            --exclude 'config.json'
+          # 单行传递以避免换行导致的解析问题
+          switches: -avzr --delete --exclude=config.json
             
           # -avzr: 归档, 详细, 压缩, 递归
           # --delete: 删除服务器上有、但本地 dist 中没有的旧文件 (保持同步) [9]

@@ -28,6 +28,9 @@ jobs:
           version: 9
           run_install: false
 
+      - name: Add PNPM to PATH
+        run: echo "$(pnpm bin)" >> $GITHUB_PATH
+
       - name: Install Dependencies
         # 使用 pnpm 读取 pnpm-lock.yaml，确保依赖锁定 [7]
         run: pnpm install --frozen-lockfile

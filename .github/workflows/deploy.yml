@@ -20,15 +20,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # 缓存 npm 包以加快速度
+          cache: 'pnpm' # 使用 pnpm 缓存以加快速度
+
+      - name: Enable Corepack (PNPM)
+        run: corepack enable
 
       - name: Install Dependencies
-        # npm ci 是 CI/CD 的标准，它比 install 更快更严格 [7]
-        run: npm ci 
+        # 使用 pnpm 读取 pnpm-lock.yaml，确保依赖锁定 [7]
+        run: pnpm install --frozen-lockfile
 
       - name: Build Production App
         # 运行 build 脚本 (在 package.json 中定义) [8]
-        run: npm run build # 这会创建./dist 文件夹
+        run: pnpm run build # 这会创建./dist 文件夹
 
       - name: Upload Build Artifact
         # 将./dist 文件夹保存为“产物”，以便下一个作业可以使用它
